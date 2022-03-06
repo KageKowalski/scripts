@@ -2,19 +2,17 @@
 
 
 # Imports
+import env_var
 import csv
 from yfinance import Ticker
 from send_email import send_email
 
 
 # Constants
-INPUT_PATH = "dir/portfolio/"
-INPUT_FILE_PORTFOLIO = "tickers.csv"
-INPUT_FILE_CASH = "cash.txt"
 PERCENT_DRIFT_TOLERANCE = 3.0
 
 
-# Get and store important data
+# Get important data
 current_ticker_values = {}
 current_cash_value = 0.0
 current_ticker_total_values = {}
@@ -29,7 +27,7 @@ email_subject = "Significant Portfolio Drift Alert"
 email_body = "Significant portfolio drift of > " + str(PERCENT_DRIFT_TOLERANCE) + '%' + \
              " has occurred.\nSee below for details.\n\n"
 
-with open(INPUT_PATH + INPUT_FILE_PORTFOLIO, mode='r') as f:
+with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
     reader = csv.DictReader(f)
 
     for row in reader:
@@ -41,7 +39,7 @@ with open(INPUT_PATH + INPUT_FILE_PORTFOLIO, mode='r') as f:
         desired_ticker_percentages[row["Ticker"]] = float(row["DesiredPercentage"])
         current_ticker_amounts[row["Ticker"]] = int(row["CurrentAmount"])
 
-with open(INPUT_PATH + INPUT_FILE_CASH, mode='r') as f:
+with open(env_var.PORTFOLIO_PATH + env_var.CASH_FILE, mode='r') as f:
     current_cash_value = float(f.read())
     total_portfolio_value = total_portfolio_value + current_cash_value
     current_cash_percentage = (current_cash_value / total_portfolio_value) * 100
@@ -54,7 +52,7 @@ for ticker in current_ticker_total_values.keys():
 # Detect whether significant portfolio drift has occurred
 print("\nCHECKING DRIFT")
 significant_drift = False
-with open(INPUT_PATH + INPUT_FILE_PORTFOLIO, mode='r') as f:
+with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
     reader = csv.DictReader(f)
 
     for row in reader:
@@ -97,7 +95,7 @@ for ticker in ideal_portfolio.keys():
                                100))
 
 
-# Send email if current percentage of any ticker is >3% away from its desired percentage
+# Send email if significant portfolio drift has occurred
 print("\nTO FIX DRIFT")
 for ticker in current_ticker_amounts.keys():
     if current_ticker_amounts[ticker] > ideal_portfolio[ticker]:

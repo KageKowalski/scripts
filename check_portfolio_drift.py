@@ -6,7 +6,6 @@ import env_var
 import csv
 from yfinance import Ticker
 from send_email import send_email
-from os import environ
 
 
 # Constants
@@ -28,7 +27,7 @@ email_subject = "Significant Portfolio Drift Alert"
 email_body = "Significant portfolio drift of > " + str(PERCENT_DRIFT_TOLERANCE) + '%' + \
              " has occurred.\nSee below for details.\n\n"
 
-with open(environ.get("SCRIPTS") + env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
+with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
     reader = csv.DictReader(f)
 
     for row in reader:
@@ -40,7 +39,7 @@ with open(environ.get("SCRIPTS") + env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE
         desired_ticker_percentages[row["Ticker"]] = float(row["DesiredPercentage"])
         current_ticker_amounts[row["Ticker"]] = int(row["CurrentAmount"])
 
-with open(environ.get("SCRIPTS") + env_var.PORTFOLIO_PATH + env_var.CASH_FILE, mode='r') as f:
+with open(env_var.PORTFOLIO_PATH + env_var.CASH_FILE, mode='r') as f:
     current_cash_value = float(f.read())
     total_portfolio_value = total_portfolio_value + current_cash_value
     current_cash_percentage = (current_cash_value / total_portfolio_value) * 100
@@ -53,7 +52,7 @@ for ticker in current_ticker_total_values.keys():
 # Detect whether significant portfolio drift has occurred
 print("\nCHECKING DRIFT")
 significant_drift = False
-with open(environ.get("SCRIPTS") + env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
+with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
     reader = csv.DictReader(f)
 
     for row in reader:

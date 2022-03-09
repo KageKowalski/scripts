@@ -5,7 +5,6 @@
 import env_var
 from ssl import create_default_context
 from smtplib import SMTP_SSL
-from os import environ
 
 
 # Sends an email to receiver (string)
@@ -14,7 +13,7 @@ def send_email(receiver, subject, body):
     # Get sender username and password from credentials file
     sender_username = ''
     sender_password = ''
-    with open(environ.get("SCRIPTS") + env_var.CRED_PATH + env_var.EMAIL_CRED_FILE, mode='r') as f:
+    with open(env_var.CRED_PATH + env_var.EMAIL_CRED_FILE, mode='r') as f:
         sender_username = f.readline().strip()
         sender_password = f.readline().strip()
 

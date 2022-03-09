@@ -3,8 +3,8 @@
 
 
 # Global vars
-CRED_PATH = ".cred/"
-DIR_PATH = "dir/"
+CRED_PATH = "./.cred/"
+DIR_PATH = "./dir/"
 
 
 # check_portfolio_drift.py vars

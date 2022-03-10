@@ -12,20 +12,16 @@ from send_email import send_email
 PERCENT_DRIFT_TOLERANCE = 3.0
 
 
-# Get important data
+# Get and store useful info
 current_ticker_values = {}
-current_cash_value = 0.0
 current_ticker_total_values = {}
 current_ticker_percentages = {}
 current_ticker_amounts = {}
+desired_ticker_percentages = {}
+current_cash_value = 0.0
 current_cash_percentage = 0.0
 total_portfolio_value = 0.0
-desired_ticker_percentages = {}
 desired_cash_percentage = 100.0
-email_receiver = "kagekowalski@gmail.com"
-email_subject = "Significant Portfolio Drift Alert"
-email_body = "Significant portfolio drift of > " + str(PERCENT_DRIFT_TOLERANCE) + '%' + \
-             " has occurred.\nSee below for details.\n\n"
 
 with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
     reader = csv.DictReader(f)
@@ -44,13 +40,25 @@ with open(env_var.PORTFOLIO_PATH + env_var.CASH_FILE, mode='r') as f:
     total_portfolio_value = total_portfolio_value + current_cash_value
     current_cash_percentage = (current_cash_value / total_portfolio_value) * 100
 
-
 for ticker in current_ticker_total_values.keys():
     current_ticker_percentages[ticker] = float((current_ticker_total_values[ticker] / total_portfolio_value) * 100)
 
 
-# Detect whether significant portfolio drift has occurred
-print("\nCHECKING DRIFT")
+# Get ideally balanced portfolio amounts
+ideal_portfolio = {}
+for ticker in desired_ticker_percentages.keys():
+    ideal_portfolio[ticker] = round((total_portfolio_value * (desired_ticker_percentages[ticker] / 100)) /
+                                    current_ticker_values[ticker])
+
+
+# Get ideally balanced portfolio percentages
+ideal_portfolio_percentages = {}
+for ticker in ideal_portfolio.keys():
+    ideal_portfolio_percentages[ticker] = ideal_portfolio[ticker] * current_ticker_values[ticker] / \
+                                          total_portfolio_value * 100
+
+
+# Detect whether significant portfolio drift has occurred for any ticker
 significant_drift = False
 with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
     reader = csv.DictReader(f)
@@ -58,77 +66,52 @@ with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
     for row in reader:
         if abs(float(row["DesiredPercentage"]) - current_ticker_percentages[row["Ticker"]]) > PERCENT_DRIFT_TOLERANCE:
             significant_drift = True
-            print(row["Ticker"] + " has experienced significant drift.")
-            print("abs(" + str(row["DesiredPercentage"]) + " - " + str(current_ticker_percentages[row["Ticker"]]) +
-                  ") > " + str(PERCENT_DRIFT_TOLERANCE))
-        else:
-            print(row["Ticker"] + " has NOT experienced significant drift.")
-            print("abs(" + str(row["DesiredPercentage"]) + " - " + str(current_ticker_percentages[row["Ticker"]]) +
-                  ") < " + str(PERCENT_DRIFT_TOLERANCE))
 
+
+# Detect whether significant portfolio drift has occurred for cash
 if abs(desired_cash_percentage - current_cash_percentage) > PERCENT_DRIFT_TOLERANCE:
     significant_drift = True
-    print("cash has experienced significant drift.")
-    print("abs(" + str(desired_cash_percentage) + " - " + str(current_cash_percentage) +
-          ") > " + str(PERCENT_DRIFT_TOLERANCE))
-else:
-    print("cash has NOT experienced significant drift.")
-    print("abs(" + str(desired_cash_percentage) + " - " + str(current_cash_percentage) +
-          ") < " + str(PERCENT_DRIFT_TOLERANCE))
 
 
-# Get ideally balanced portfolio
-ideal_portfolio = {}
+# Construct email
+email_receiver = "kagekowalski@gmail.com"
+email_subject = "Significant Portfolio Drift Alert"
+email_body = "Significant portfolio drift of > " + str(PERCENT_DRIFT_TOLERANCE) + '%' + \
+             " has occurred.\nSee below for details.\n"
+
+email_body = email_body + "\nCURRENT PORTFOLIO\n"
+for ticker in current_ticker_amounts.keys():
+    email_body = email_body + "Ticker: " + ticker + \
+                 " | Amount Owned: " + str(current_ticker_amounts[ticker]) + \
+                 " | Percentage of Portfolio: " + "{:.2%}".format(current_ticker_percentages[ticker] / 100) + \
+                 " @ " + '$' + str(current_ticker_values[ticker]) + "/share" + '\n'
+
+email_body = email_body + "\nDESIRED PERCENTAGES\n"
 for ticker in desired_ticker_percentages.keys():
-    ideal_portfolio[ticker] = round((total_portfolio_value * (desired_ticker_percentages[ticker] / 100)) /
-                                    current_ticker_values[ticker])
+    email_body = email_body + "Ticker: " + ticker + " | Desired Percentage of Portfolio: " + \
+                 "{:.2%}".format(desired_ticker_percentages[ticker] / 100) + '\n'
 
-print("\nIDEAL PORTFOLIO")
-print(ideal_portfolio)
-
-print("\nIDEAL PORTFOLIO PERCENTAGES")
-ideal_portfolio_percentages = {}
+email_body = email_body + "\nIDEAL PORTFOLIO\n"
 for ticker in ideal_portfolio.keys():
-    ideal_portfolio_percentages[ticker] = ideal_portfolio[ticker] * current_ticker_values[ticker] / \
-                                          total_portfolio_value * 100
-    print(ticker + " - " + str(((ideal_portfolio[ticker] * current_ticker_values[ticker]) / total_portfolio_value) *
-                               100))
+    email_body = email_body + "Ticker: " + ticker + \
+                 " | Amount Owned: " + str(ideal_portfolio[ticker]) + \
+                 " | Percentage of Portfolio: " + "{:.2%}".format(ideal_portfolio_percentages[ticker] / 100) + '\n'
 
-
-# Send email if significant portfolio drift has occurred
-print("\nTO FIX DRIFT")
+email_body = email_body + "\nACTIONS TO CORRECT DRIFT\n"
 for ticker in current_ticker_amounts.keys():
     if current_ticker_amounts[ticker] > ideal_portfolio[ticker]:
-        print("Sell " + str(current_ticker_amounts[ticker] - ideal_portfolio[ticker]) + " of " + ticker)
+        email_body = email_body + "Sell " + str(current_ticker_amounts[ticker] - ideal_portfolio[ticker]) + \
+                     " of " + ticker
     else:
-        print("Buy " + str(ideal_portfolio[ticker] - current_ticker_amounts[ticker]) + " of " + ticker)
+        email_body = email_body + "Buy " + str(ideal_portfolio[ticker] - current_ticker_amounts[ticker]) + \
+                     " of " + ticker
+    email_body = email_body + '\n'
+
+print("EMAIL TO SEND")
+print("receiver: " + email_receiver)
+print("subject: " + email_subject)
+print("body-\n" + email_body)
+
+# If significant drift has occurred, send email
 if significant_drift:
-    email_body = email_body + "CURRENT PORTFOLIO\n"
-    for ticker in current_ticker_amounts.keys():
-        email_body = email_body + "Ticker: " + ticker + \
-                     " | Amount Owned: " + str(current_ticker_amounts[ticker]) + \
-                     " | Percentage of Portfolio: " + "{:.2%}".format(current_ticker_percentages[ticker] / 100) + \
-                     " @ " + '$' + str(current_ticker_values[ticker]) + "/share" + '\n'
-
-    email_body = email_body + "\nDESIRED PERCENTAGES\n"
-    for ticker in desired_ticker_percentages.keys():
-        email_body = email_body + "Ticker: " + ticker + " | Desired Percentage of Portfolio: " + \
-                     "{:.2%}".format(desired_ticker_percentages[ticker] / 100) + '\n'
-
-    email_body = email_body + "\nIDEAL PORTFOLIO\n"
-    for ticker in ideal_portfolio.keys():
-        email_body = email_body + "Ticker: " + ticker + \
-                     " | Amount Owned: " + str(ideal_portfolio[ticker]) + \
-                     " | Percentage of Portfolio: " + "{:.2%}".format(ideal_portfolio_percentages[ticker] / 100) + '\n'
-
-    email_body = email_body + "\nACTIONS TO CORRECT DRIFT\n"
-    for ticker in current_ticker_amounts.keys():
-        if current_ticker_amounts[ticker] > ideal_portfolio[ticker]:
-            email_body = email_body + "Sell " + str(current_ticker_amounts[ticker] - ideal_portfolio[ticker]) + \
-                         " of " + ticker
-        else:
-            email_body = email_body + "Buy " + str(ideal_portfolio[ticker] - current_ticker_amounts[ticker]) + \
-                         " of " + ticker
-        email_body = email_body + '\n'
-
     send_email(email_receiver, email_subject, email_body)

@@ -7,7 +7,7 @@ from os import environ
 
 
 # Global vars
-SCRIPTS_PATH = environ("SCRIPTS")
+SCRIPTS_PATH = environ["SCRIPTS"]
 CRED_PATH = SCRIPTS_PATH + ".cred/"
 DIR_PATH = SCRIPTS_PATH + "dir/"
 

@@ -1,4 +1,12 @@
-# Send alert if significant portfolio drift occurs
+# 1. Check whether significant portfolio drift has occurred
+# 2. Create a message including all information on how to correct portfolio drift
+# 3. If significant portfolio drift has occurred, send the message as an email alert
+#
+# Relies on TICKERS_FILE and CASH_FILE from env_var.py as input data, which represent the portfolio being checked
+# TICKERS_FILE is a csv file containing information on tickers in the portfolio, with headers...
+# ["Ticker", "DesiredPercentage", "CurrentAmount"]
+# CASH_FILE is a txt file containing the amount of cash in the portfolio
+# TICKERS_FILE and CASH_FILE must be updated manually
 
 
 # Imports
@@ -114,4 +122,8 @@ print("body-\n" + email_body)
 
 # If significant drift has occurred, send email
 if significant_drift:
+    print("\nSignificant portfolio drift detected. Email will be sent.")
     send_email(email_receiver, email_subject, email_body)
+    print("Email sent successfully.")
+else:
+    print("\nNo significant portfolio drift detected. Email will not be sent.")

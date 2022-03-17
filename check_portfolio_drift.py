@@ -83,7 +83,7 @@ email_body = "Significant portfolio drift of > " + str(PERCENT_DRIFT_TOLERANCE) 
              " has occurred.\nSee below for details.\n\n"
 
 for ticker in ticker_info:
-    email_body = email_body + "ANALYZING: " + ticker + '\n'
+    email_body = email_body + "Analyzing: " + ticker + '\n'
     email_body = email_body + "Current: " + str(ticker_info[ticker]["CurrentAmount"]) + " owned @ $" + \
                  str(ticker_info[ticker]["CurrentValue"]) + "/share, totaling $" + \
                  str(round(ticker_info[ticker]["CurrentAmount"] * ticker_info[ticker]["CurrentValue"], 2)) + \
@@ -102,11 +102,12 @@ for ticker in ticker_info:
 print("START EMAIL BODY AS CONSTRUCTED--------------------------------------------------------------------------------")
 print(email_body)
 print("END EMAIL BODY AS CONSTRUCTED----------------------------------------------------------------------------------")
+print()
 
 
 # If significant drift has occurred, send email
 if significant_drift:
-    print("Significant portfolio drift detected: sending email.\n")
+    print("Significant portfolio drift detected: sending email.")
     send_email(EMAIL_RECEIVER, EMAIL_SUBJECT, email_body)
     print("Email sent successfully.")
 else:

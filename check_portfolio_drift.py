@@ -10,7 +10,7 @@
 # CASH_FILE is a csv file containing information on cash in the portfolio, with headers...
 # ["DesiredPercentage", "CurrentAmount"]
 #
-# CASH_File must contain a single line, not counting the header line
+# CASH_File must contain a single line, excluding the header line
 # All DesiredPercentage fields must add up to 100
 # TICKERS_FILE and CASH_FILE must be updated manually
 
@@ -21,10 +21,12 @@ import csv
 from yfinance import Ticker
 from send_email import send_email
 
+
 # Constants
 PERCENT_DRIFT_TOLERANCE = 3.0
 EMAIL_RECEIVER = "kagekowalski@gmail.com"
 EMAIL_SUBJECT = "Significant Portfolio Drift Alert"
+
 
 # Get input data from TICKERS_FILE, and get online data from yfinance.Ticker
 ticker_info = {}
@@ -40,6 +42,7 @@ with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
                                       "CurrentValue": current_ticker_value}
         total_ticker_value = total_ticker_value + (current_ticker_value * current_ticker_amount)
 
+
 # Get input data from CASH_FILE
 cash_info = {}
 total_portfolio_value = 0.0
@@ -51,6 +54,7 @@ with open(env_var.PORTFOLIO_PATH + env_var.CASH_FILE, mode='r') as f:
         cash_info["CurrentAmount"] = float(row["CurrentAmount"])
 
     total_portfolio_value = total_ticker_value + cash_info["CurrentAmount"]
+
 
 # Calculate CurrentPercentage, IdealAmount, and IdealPercentage of each ticker
 # Also, detect whether significant portfolio drift has occurred for any ticker
@@ -70,6 +74,7 @@ for ticker in ticker_info:
             PERCENT_DRIFT_TOLERANCE:
         significant_drift = True
 
+
 # Calculate CurrentPercentage, IdealAmount, and IdealPercentage of cash
 # Also, detect whether significant portfolio drift has occurred for cash
 cash_info["CurrentPercentage"] = cash_info["CurrentAmount"] / total_portfolio_value * 100
@@ -77,6 +82,7 @@ cash_info["IdealAmount"] = round(total_portfolio_value * (cash_info["DesiredPerc
 cash_info["IdealPercentage"] = cash_info["IdealAmount"] / total_portfolio_value * 100
 if abs(cash_info["DesiredPercentage"] - cash_info["CurrentPercentage"]) > PERCENT_DRIFT_TOLERANCE:
     significant_drift = True
+
 
 # Construct email body
 email_body = "Significant portfolio drift of > " + str(PERCENT_DRIFT_TOLERANCE) + '%' + \

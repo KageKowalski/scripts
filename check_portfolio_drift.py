@@ -64,7 +64,7 @@ for ticker in ticker_info:
               ticker_info[ticker]["CurrentValue"])
 
     ticker_info[ticker]["IdealPercentage"] = \
-        ticker_info[ticker]["IdealAmount"] * ticker_info[ticker]["CurrentValue"] / total_portfolio_value * 100
+        ticker_info[ticker]["IdealAmount"] * ticker_info[ticker]["CurrentValue"] / total_portfolio_value
 
     if abs(ticker_info[ticker]["DesiredPercentage"] - ticker_info[ticker]["CurrentPercentage"]) > \
             PERCENT_DRIFT_TOLERANCE:
@@ -74,7 +74,7 @@ for ticker in ticker_info:
 # Also, detect whether significant portfolio drift has occurred for cash
 cash_info["CurrentPercentage"] = cash_info["CurrentAmount"] / total_portfolio_value
 cash_info["IdealAmount"] = round(total_portfolio_value * (cash_info["DesiredPercentage"] / 100))
-cash_info["IdealPercentage"] = cash_info["IdealAmount"] / total_portfolio_value * 100
+cash_info["IdealPercentage"] = cash_info["IdealAmount"] / total_portfolio_value
 if abs(cash_info["DesiredPercentage"] - cash_info["CurrentPercentage"]) > PERCENT_DRIFT_TOLERANCE:
     significant_drift = True
 
@@ -87,11 +87,11 @@ for ticker in ticker_info:
     email_body = email_body + "Current: " + str(ticker_info[ticker]["CurrentAmount"]) + " owned @ $" + \
                  str(ticker_info[ticker]["CurrentValue"]) + "/share, totaling $" + \
                  str(round(ticker_info[ticker]["CurrentAmount"] * ticker_info[ticker]["CurrentValue"], 2)) + \
-                 ", making up " + str(round(ticker_info[ticker]["CurrentPercentage"], 2)) + "% of portfolio.\n"
+                 ", making up " + str(round(ticker_info[ticker]["CurrentPercentage"] * 100, 2)) + "% of portfolio.\n"
     email_body = email_body + "Ideal: " + str(ticker_info[ticker]["IdealAmount"]) + " owned @ $" + \
                  str(ticker_info[ticker]["CurrentValue"]) + "/share, totaling $" + \
                  str(round(ticker_info[ticker]["IdealAmount"] * ticker_info[ticker]["CurrentValue"], 2)) + \
-                 ", making up " + str(round(ticker_info[ticker]["IdealPercentage"], 2)) + "% of portfolio.\n"
+                 ", making up " + str(round(ticker_info[ticker]["IdealPercentage"] * 100, 2)) + "% of portfolio.\n"
     if ticker_info[ticker]["CurrentAmount"] > ticker_info[ticker]["IdealAmount"]:
         email_body = email_body + "To Correct Drift: Sell " + \
                      str(ticker_info[ticker]["CurrentAmount"] - ticker_info[ticker]["IdealAmount"]) + " shares\n\n"

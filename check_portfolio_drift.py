@@ -34,10 +34,11 @@ with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
 
     for row in reader:
         current_ticker_value = float(Ticker(row["Ticker"]).info["regularMarketPrice"])
+        current_ticker_amount = int(row["CurrentAmount"])
         ticker_info[row["Ticker"]] = {"DesiredPercentage": float(row["DesiredPercentage"]),
-                                      "CurrentAmount": int(row["CurrentAmount"]),
+                                      "CurrentAmount": current_ticker_amount,
                                       "CurrentValue": current_ticker_value}
-        total_ticker_value = total_ticker_value + current_ticker_value
+        total_ticker_value = total_ticker_value + (current_ticker_value * current_ticker_amount)
 
 # Get input data from CASH_FILE
 cash_info = {}
@@ -85,12 +86,12 @@ for ticker in ticker_info:
     email_body = email_body + "ANALYZING: " + ticker + '\n'
     email_body = email_body + "Current: " + str(ticker_info[ticker]["CurrentAmount"]) + " owned @ $" + \
                  str(ticker_info[ticker]["CurrentValue"]) + "/share, totaling $" + \
-                 str(ticker_info[ticker]["CurrentAmount"] * ticker_info[ticker]["CurrentValue"]) + ", making up " + \
-                 str(ticker_info[ticker]["CurrentPercentage"]) + "% of portfolio.\n"
+                 str(round(ticker_info[ticker]["CurrentAmount"] * ticker_info[ticker]["CurrentValue"], 2)) + \
+                 ", making up " + str(round(ticker_info[ticker]["CurrentPercentage"], 2)) + "% of portfolio.\n"
     email_body = email_body + "Ideal: " + str(ticker_info[ticker]["IdealAmount"]) + " owned @ $" + \
                  str(ticker_info[ticker]["CurrentValue"]) + "/share, totaling $" + \
-                 str(ticker_info[ticker]["IdealAmount"] * ticker_info[ticker]["CurrentValue"]) + ", making up " + \
-                 str(ticker_info[ticker]["IdealPercentage"]) + "% of portfolio.\n"
+                 str(round(ticker_info[ticker]["IdealAmount"] * ticker_info[ticker]["CurrentValue"], 2)) + \
+                 ", making up " + str(round(ticker_info[ticker]["IdealPercentage"], 2)) + "% of portfolio.\n"
     if ticker_info[ticker]["CurrentAmount"] > ticker_info[ticker]["IdealAmount"]:
         email_body = email_body + "To Correct Drift: Sell " + \
                      str(ticker_info[ticker]["CurrentAmount"] - ticker_info[ticker]["IdealAmount"]) + " shares\n\n"

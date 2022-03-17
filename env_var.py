@@ -11,7 +11,7 @@ DIR_PATH = SCRIPTS_PATH + "dir/"
 # check_portfolio_drift.py vars
 PORTFOLIO_PATH = DIR_PATH + "portfolio/"
 TICKERS_FILE = "tickers.csv"
-CASH_FILE = "cash.txt"
+CASH_FILE = "cash.csv"
 
 
 # send_email.py vars

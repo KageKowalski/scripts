@@ -19,19 +19,23 @@
 import env_var
 import csv
 from yfinance import Ticker
-from send_email import send_email
+from os_util import send_email
 
 
 # Constants
 PERCENT_DRIFT_TOLERANCE = 3.0
 EMAIL_RECEIVER = "kagekowalski@gmail.com"
 EMAIL_SUBJECT = "Significant Portfolio Drift Alert"
+PORTFOLIO_PATH = env_var.DIR_PATH + "portfolio/"
+TICKERS_FILE = PORTFOLIO_PATH + "tickers.csv"
+CASH_FILE = PORTFOLIO_PATH + "cash.csv"
+EMAIL_CRED_FILE = env_var.CRED_PATH + "email_credentials.txt"
 
 
 # Get input data from TICKERS_FILE, and get online data from yfinance.Ticker
 ticker_info = {}
 total_ticker_value = 0.0
-with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
+with open(TICKERS_FILE, mode='r') as f:
     reader = csv.DictReader(f)
 
     for row in reader:
@@ -46,7 +50,7 @@ with open(env_var.PORTFOLIO_PATH + env_var.TICKERS_FILE, mode='r') as f:
 # Get input data from CASH_FILE
 cash_info = {}
 total_portfolio_value = 0.0
-with open(env_var.PORTFOLIO_PATH + env_var.CASH_FILE, mode='r') as f:
+with open(CASH_FILE, mode='r') as f:
     reader = csv.DictReader(f)
 
     for row in reader:
@@ -114,7 +118,10 @@ print()
 # If significant drift has occurred, send email
 if significant_drift:
     print("Significant portfolio drift detected: sending email.")
-    send_email(EMAIL_RECEIVER, EMAIL_SUBJECT, email_body)
+    with open(EMAIL_CRED_FILE) as f:
+        SENDER_USERNAME = f.readline()
+        SENDER_PASSWORD = f.readline()
+    send_email(EMAIL_RECEIVER, EMAIL_SUBJECT, email_body, SENDER_USERNAME, SENDER_PASSWORD)
     print("Email sent successfully.")
 else:
     print("No significant portfolio drift detected. Email will not be sent.")

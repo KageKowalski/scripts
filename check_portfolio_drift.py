@@ -2,16 +2,20 @@
 # 2. Create a message including all information on how to correct portfolio drift
 # 3. If significant portfolio drift has occurred, send the message as an email alert
 #
-# Relies on TICKERS_FILE and CASH_FILE from env_var.py as input data, which represent the portfolio being checked
+# Relies on TICKERS_FILE and CASH_FILE, which represent the portfolio being checked
+# Relies on EMAIL_CRED_FILE, which contains the credentials of the sender's email account
 #
 # TICKERS_FILE is a csv file containing information on tickers in the portfolio, with headers...
 # ["Ticker", "DesiredPercentage", "CurrentAmount"]
 #
 # CASH_FILE is a csv file containing information on cash in the portfolio, with headers...
 # ["DesiredPercentage", "CurrentAmount"]
+# CASH_File must contain exactly one line, excluding the header line
 #
-# CASH_File must contain a single line, excluding the header line
-# All DesiredPercentage fields must add up to 100
+# EMAIL_CRED_FILE is a txt file containing the sender's email address on the first line and their password on the
+# second line
+#
+# All DesiredPercentage fields from TICKERS_FILE and CASH_FILE must add up to 100
 # TICKERS_FILE and CASH_FILE must be updated manually
 
 

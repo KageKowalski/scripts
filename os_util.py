@@ -3,17 +3,31 @@
 
 # Imports
 import os
-import time
+from smtplib import SMTP_SSL
+from ssl import create_default_context
+from time import time
 
 
-# Deletes all files contained in "directory" (string)
-# If "days" (int) is passed a value, only files that were last modified "days" (int) days ago or more are deleted
-# Only deletes directories in addition to files if ignore_directories (bool) is set to False
+# Deletes all files contained in directory (String)
+# If days (Integer) is passed a value, only files that were last modified days (Integer) days ago or more are deleted
+# Only deletes directories in addition to files if ignore_directories (Boolean) is set to False
 def clean_dir(directory, days=0, ignore_directories=True):
-    now = time.time()
+    now = time()
     for item in os.scandir(directory):
         if os.stat(item).st_mtime <= now - days * 86400:
             if ignore_directories and item.is_file():
                 os.remove(item.path)
             elif not ignore_directories and (item.is_file() or item.is_dir()):
                 os.remove(item.path)
+
+
+# Sends an email to receiver (String)
+# Message sent is made of subject (String) and body (String)
+# sender_username (String) and sender_password (String) are the credentials for the sender's email account
+def send_email(receiver, subject, body, sender_username, sender_password):
+    port = 465
+    smtp_server = "smtp.gmail.com"
+    context = create_default_context()
+    with SMTP_SSL(smtp_server, port, context=context) as server:
+        server.login(sender_username, sender_password)
+        server.sendmail(sender_username, receiver, "Subject: " + subject + "\n\n" + body)

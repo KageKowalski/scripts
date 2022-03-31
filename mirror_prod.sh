@@ -22,7 +22,7 @@ adduser --disabled-password --gecos "" $NP_USERNAME
 
 # 3. Copy relevant PRD environment info to NP environment
 echo "Step #3"
-rsync -a --chown={$NP_USERNAME}:{$NP_USERNAME} /home/{$PRD_USERNAME}/scripts/ /home/{$NP_USERNAME}/scripts/
-rsync -a --chown={$NP_USERNAME}:{$NP_USERNAME} /home/{$PRD_USERNAME}/.profile /home/{$NP_USERNAME}/.profile
-sed -i 's/{$PRD_USERNAME}/{$NP_USERNAME}/g' /home/{$NP_USERNAME}/.profile
-rsync -a --chown={$NP_USERNAME}:{$NP_USERNAME} /home/{$PRD_USERNAME}/.vimrc /home/{$NP_USERNAME}/.vimrc
+rsync -a --chown=$NP_USERNAME:$NP_USERNAME /home/$PRD_USERNAME/scripts/ /home/$NP_USERNAME/scripts/
+rsync -a --chown=$NP_USERNAME:$NP_USERNAME /home/$PRD_USERNAME/.profile /home/$NP_USERNAME/.profile
+sed -i "s/{$PRD_USERNAME}/{$NP_USERNAME}/g" /home/$NP_USERNAME/.profile
+rsync -a --chown=$NP_USERNAME:$NP_USERNAME /home/$PRD_USERNAME/.vimrc /home/$NP_USERNAME/.vimrc

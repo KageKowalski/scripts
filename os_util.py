@@ -21,6 +21,19 @@ def clean_dir(directory, days=0, ignore_directories=True):
                 os.remove(item.path)
 
 
+# Touches all files that begin with prefix (String) and are located at directory (String)
+# Assumes that all touched files' names contain a number between their prefixes and their file extensions
+# Increments the number contained by each filename by increment_value (Integer)
+def increment_filename_numbers(directory, prefix, increment_value=1):
+    for item in os.scandir(directory):
+        if item.is_file() and item.name.startswith(prefix):
+            os.rename(item.path,
+                      directory +
+                      item.name[:len(prefix)] +
+                      str((int(item.name[len(prefix):item.name.find('.')]) + increment_value)) +
+                      item.name[item.name.find('.'):])
+
+
 # Sends an email to receiver (String)
 # Message sent is made of subject (String) and body (String)
 # sender_username (String) and sender_password (String) are the credentials for the sender's email account

@@ -25,5 +25,5 @@ def convert_frame_to_ascii(image_file):
     pass
 
 
-def convert_ascii_to_mp4(image_files)
+def convert_ascii_to_mp4(image_files):
     pass

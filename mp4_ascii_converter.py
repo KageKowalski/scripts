@@ -1,4 +1,4 @@
-# Converts a normal mp4 such that every frame becomes ascii art
+# Converts all frames of an mp4 to ascii art and prints the frames in the original video's framerate to cml
 
 
 # Imports
@@ -10,11 +10,14 @@ from typing import Optional
 # Generates a new mp4 from mp4_file_in (String path to input mp4 file) where every frame is replaced with ascii art
 # image_dir (String) is directory where temporary images should be stored
 # mp4_file_out (String) is path + name of oupput mp4 file
-def convert_mp4_to_ascii(mp4_file_in, image_dir, mp4_file_out):
+def convert_mp4_to_ascii(mp4_file_in, image_dir):
     image_count = convert_mp4_to_frames(mp4_file_in, image_dir)
 
     for i in range(image_count):
-        image_to_ascii_art("{}frame{}.jpg".format(image_dir, i), "{}ascii_frame{}.txt".format(image_dir, i))
+        image_to_ascii_art("{}frame{}.jpg".format(image_dir, i), "{}ascii_frame{}".format(image_dir, i))
+
+    fps = cv2.VideoCapture(mp4_file_in).get(cv2.CAP_PROP_FPS)
+    print(fps)
 
 
 # Converts the frames of the mp4 with path mp4_file_in (String) to jpg images
@@ -31,7 +34,8 @@ def convert_mp4_to_frames(mp4_file_in, image_dir_out):
     return count
 
 
-# Ripped straight from pywhatkit to avoid overhead
+# Ripped straight from pywhatkit; copying instead of importing avoids overhead
+# First param is input file, second param is output file
 def image_to_ascii_art(
     img_path: str, output_file: Optional[str] = "pywhatkit_asciiart"
 ) -> str:
@@ -61,7 +65,3 @@ def image_to_ascii_art(
     with open(f"{output_file}.txt", "w") as f:
         f.write(ascii_image)
     return ascii_image
-
-
-def convert_ascii_to_mp4(image_files):
-    pass

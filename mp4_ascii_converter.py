@@ -4,20 +4,22 @@
 # Imports
 import cv2
 from PIL import Image
+import time
 from typing import Optional
 
 
 # Generates a new mp4 from mp4_file_in (String path to input mp4 file) where every frame is replaced with ascii art
 # image_dir (String) is directory where temporary images should be stored
-# mp4_file_out (String) is path + name of oupput mp4 file
-def convert_mp4_to_ascii(mp4_file_in, image_dir):
+# mp4_file_out (String) is path + name of output mp4 file
+def build_dice_mp4(mp4_file_in, out_dir):
     image_count = convert_mp4_to_frames(mp4_file_in, image_dir)
 
     for i in range(image_count):
-        image_to_ascii_art("{}frame{}.jpg".format(image_dir, i), "{}ascii_frame{}".format(image_dir, i))
+        image_to_ascii_art(f"{image_dir}frame{i}.jpg", f"{image_dir}ascii_frame{i}")
 
     fps = cv2.VideoCapture(mp4_file_in).get(cv2.CAP_PROP_FPS)
-    print(fps)
+    for i in range(image_count):
+        
 
 
 # Converts the frames of the mp4 with path mp4_file_in (String) to jpg images
@@ -28,7 +30,7 @@ def convert_mp4_to_frames(mp4_file_in, image_dir_out):
     success, image = video_capture.read()
     count = 0
     while success:
-        cv2.imwrite("{}frame{}.jpg".format(image_dir_out, count), image)
+        cv2.imwrite(f"{image_dir_out}frame{count}.jpg", image)
         success, image = video_capture.read()
         count = count + 1
     return count
@@ -36,32 +38,5 @@ def convert_mp4_to_frames(mp4_file_in, image_dir_out):
 
 # Ripped straight from pywhatkit; copying instead of importing avoids overhead
 # First param is input file, second param is output file
-def image_to_ascii_art(
-    img_path: str, output_file: Optional[str] = "pywhatkit_asciiart"
-) -> str:
-    """Convert an Image to ASCII Art"""
-
-    img = Image.open(img_path).convert("L")
-
-    width, height = img.size
-    aspect_ratio = height / width
-    new_width = 80
-    new_height = aspect_ratio * new_width * 0.55
-    img = img.resize((new_width, int(new_height)))
-
-    pixels = img.getdata()
-
-    chars = ["*", "S", "#", "&", "@", "$", "%", "*", "!", ":", "."]
-    new_pixels = [chars[pixel // 25] for pixel in pixels]
-    new_pixels = "".join(new_pixels)
-
-    new_pixels_count = len(new_pixels)
-    ascii_image = [
-        new_pixels[index: index + new_width]
-        for index in range(0, new_pixels_count, new_width)
-    ]
-    ascii_image = "\n".join(ascii_image)
-
-    with open(f"{output_file}.txt", "w") as f:
-        f.write(ascii_image)
-    return ascii_image
+def image_to_ascii_art():
+    pass

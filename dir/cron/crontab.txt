@@ -23,3 +23,4 @@
 # m h  dom mon dow   command
 0 6,12,18 * * 1-5 /usr/bin/bash -l -c "/usr/bin/python3 /home/scriptrunner/scripts/check_portfolio_drift.py >> /home/scriptrunner/scripts/dir/.log/check_portfolio_drift.py.`date +\%Y-\%m-\%d_\%H\%M` 2>&1"
 0 0 * * * /usr/bin/bash -l -c "/usr/bin/python3 /home/scriptrunner/scripts/clean_logs.py >> /home/scriptrunner/scripts/dir/.log/clean_logs.py.`date +\%Y-\%m-\%d_\%H\%M` 2>&1"
+0 * * * * /usr/bin/bash -l -c "/usr/bin/bash /home/scriptrunner/scripts/refresh_scripts.sh >> /home/scriptrunner/scripts/dir/.log/refresh_scripts.sh.`date +\%Y-\%m-\%d_\%H\%M` 2>&1"
